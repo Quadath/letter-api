@@ -7,6 +7,7 @@ const UserSchema = require('../models/user')
 const router = Router()
 
 const registerValidator = [
+    body('name').isLength({min: 5}),
     body('username').isLength({min: 5}),
     body('password').isLength({min: 6}),
     body('repeat').custom((value, {req}) => {
@@ -23,10 +24,9 @@ const registerValidator = [
 ]
 
 router.post('/register', registerValidator, async(req, res) => {
-
-    console.log(req.body)
-
     const {name, username, password, repeat} = req.body;
+
+    
 
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -43,6 +43,7 @@ router.post('/register', registerValidator, async(req, res) => {
     })
 })
 
+
 const loginValidator = [
    
 ]
@@ -56,7 +57,8 @@ router.post('/login', async(req, res) => {
         return res.status(400)
         .json({errors: [{value:username,msg:"User not found.",param:"username",location:"body"}]})
     }
-    const passwordMatch = bcrypt.compare(password, user.password)
+
+    const passwordMatch = await bcrypt.compare(password, user.password)
     if(passwordMatch) {
         req.session.user = user._id;
         req.session.save(err => {
@@ -71,6 +73,21 @@ router.post('/login', async(req, res) => {
 
     res.writeHead(200, {'Content-Type': 'application/json'})
         .end(JSON.stringify({message: "success"}))
+})
+
+router.get('/me', async(req, res) => {
+    const userId = req.session.user;
+
+    if(userId === undefined) {
+        res.status(200, {'Content-Type': 'application/json'})
+        .end(JSON.stringify({message: "You are not signed in!"}))
+    }
+
+    await UserSchema.findById(userId).select(['-password', '-posts'])
+        .then(user => {
+            res.status(200, {'Content-Type': 'application/json'})
+            .end(JSON.stringify(user))
+        })
 })
 
 module.exports = router
