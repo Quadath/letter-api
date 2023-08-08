@@ -30,6 +30,19 @@ const UserSchema = new Schema({
                 default: new Date()
             }
         }
+    ],
+    images: [
+        {
+            path: {
+                type: String,
+                required: true
+            },
+            time: {
+                type: Date, 
+                default: new Date()
+            },
+            _id: false
+        }
     ]
 })
 

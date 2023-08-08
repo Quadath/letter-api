@@ -38,6 +38,32 @@ router.get('/:username', async (req, res) => {
     .end(JSON.stringify(user[0]))
 })
 
+router.get('/:username/images', async (req, res) => {
+    const username = req.params.username
+
+    const data = await UserSchema.aggregate([
+        {
+            $match: {
+                username: username
+            }
+        },
+        {
+            $project: {
+                images: 1,
+                _id: 0
+            }
+        }
+    ])
+
+    if (data == null) {
+        res.status(400, {'Content-Type': 'application/json'})
+        .end(JSON.stringify({message: "User not found."}))
+    }
+
+    res.status(200, {'Content-Type': 'application/json'})
+    .end(JSON.stringify(data))
+})
+
 router.post('/:username/posts', async (req, res) => {
     const username = req.params.username
     const {text} = req.body;

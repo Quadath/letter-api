@@ -12,6 +12,7 @@ const keys = require('./keys')
 const AuthRouter = require('./routes/auth')
 const UserRouter = require('./routes/user')
 const PostRouter = require('./routes/post')
+const FileRouter = require('./routes/files')
 
 const app = express()
 const store = new MongoStore({
@@ -35,6 +36,7 @@ app.use(express.static('public'))
 app.use('/auth', AuthRouter)
 app.use('/users', UserRouter)
 app.use('/posts', PostRouter)
+app.use('/files', FileRouter)
 // app.use('/users', PostRouter)
 
 
